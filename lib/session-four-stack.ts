@@ -52,5 +52,10 @@ export class SessionFourStack extends cdk.Stack {
         events: [ s3.EventType.OBJECT_CREATED_PUT]
       }
     ))
+
+    //S3 Bucket
+    const balanceBucketS3 = new s3.Bucket(this, "s3BucketLogicalId", {
+      bucketName: "BalanceStatus01"
+    })
   }
 }
