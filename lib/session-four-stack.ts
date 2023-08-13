@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Construct } from 'constructs';
 import * as sns from 'aws-cdk-lib/aws-sns'
 import * as s3 from 'aws-cdk-lib/aws-s3'
@@ -12,14 +13,17 @@ export class SessionFourStack extends cdk.Stack {
     super(scope, id, props);
 
     const topic = new sns.Topic(this, 'LabTopic1', { displayName: 'LabTopic', topicName: 'LabTopic1'})
-    const bucket = new s3.Bucket(this, 'MyBucketLab', {
-    });
+    const emailSuscription = new subscriptions.EmailSubscription("julio.nunez@telusinternational.com")
+    const bucket = new s3.Bucket(this, 'MyBucketLab');
 
     const lambda = new nodejs.NodejsFunction(this, 'MyLambdaFuncLab', {
       entry: './src/index.ts',
       handler: 'handler',
       runtime: Runtime.NODEJS_18_X,
-      functionName: 'MyLambdaFuncLab'
+      functionName: 'MyLambdaFuncLab',
+      environment: {
+        TOPIC_ARN: topic.topicArn
+      }
     });
 
     lambda.role?.addToPrincipalPolicy(new PolicyStatement({
@@ -42,6 +46,11 @@ export class SessionFourStack extends cdk.Stack {
     }));
 
     topic.grantPublish(lambda);
-    lambda.addEventSource(new S3EventSource(bucket, { events: [ s3.EventType.OBJECT_CREATED_PUT]}))
+    topic.addSubscription(emailSuscription);
+    lambda.addEventSource(new S3EventSource(
+      bucket, { 
+        events: [ s3.EventType.OBJECT_CREATED_PUT]
+      }
+    ))
   }
 }
