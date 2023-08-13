@@ -8,6 +8,7 @@ import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { aws_iam } from 'aws-cdk-lib';
+import * as aws_lambda from 'aws-cdk-lib/aws-lambda';
 
 export class SessionFourStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -67,6 +68,11 @@ export class SessionFourStack extends cdk.Stack {
     iamBBalanceStatusRole.addManagedPolicy(aws_iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess"))
 
     //Lambda Function
-    
+    const banckingLambdaFunction = new aws_lambda.Function(this, "lambdaLogicalId", {
+      handler: 'lambda_function.lambda_handler',
+      runtime:aws_lambda.Runtime.NODEJS_18_X,
+      code: aws_lambda.Code.fromAsset(''),
+      role: iamBBalanceStatusRole
+    })
   }
 }
