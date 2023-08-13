@@ -7,6 +7,7 @@ import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs'
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
+import { aws_iam } from 'aws-cdk-lib';
 
 export class SessionFourStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -57,5 +58,15 @@ export class SessionFourStack extends cdk.Stack {
     const balanceBucketS3 = new s3.Bucket(this, "s3BucketLogicalId", {
       bucketName: "BalanceStatus01"
     })
+    //IAM Role
+    const iamBBalanceStatusRole = new aws_iam.Role(this, "iamBalanceRole", {
+      roleName: "banckingLambdaRole",
+      description: "Role for lambda to access S3 bucket",
+      assumedBy: new aws_iam.ServicePrincipal("lambda.amazonaws.com")
+    })
+    iamBBalanceStatusRole.addManagedPolicy(aws_iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess"))
+
+    //Lambda Function
+    
   }
 }
